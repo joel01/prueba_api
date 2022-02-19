@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <script type="text/javascript">
+            function handleDrop(event, ui) {
+                var droppedProduct = ui.draggable;
+
+                droppedProduct.fadeOut('fast');
+            }
+        </script>
+        <f:event type="preRenderView" listener="#{pokemonC.obtenerPokedex()}"/>
+
+        <h:form>
+            <p:menubar style="margin-bottom: 20px">
+                <p:menuitem value="Capturalos YA!" url="/ProyectoPokemon/" />
+            </p:menubar>
+        </h:form>
+        <div class="card">
+            <h:form id="frmPokedex">
+                <p:dataView id="pokemonesObtenido" var="pok" 
+                            value="${pokemonC.pokemonesObtenidos}" 
+                            rows="9" layout="grid" gridIcon="pi pi-th-large">
+                    <p:dataViewGridItem>
+                        <p:panel id="pnl" header="${pok.NOMPOK}" style="text-align:center" >
+                            <p:panelGrid columns="1" style="width:100%">
+                                <p:graphicImage url="${pok.IMGFROPOK}"/>
+                            </p:panelGrid>
+                        </p:panel>
+                    <p:draggable for="pnl" revert="true" handle=".ui-panel-titlebar" stack=".ui-panel"/>
+
+                    </p:dataViewGridItem>
+                </p:dataView>
+                <p:fieldset id="pokemonSelecionado" legend="Selecciona un Pokemon" style="margin-top: 20px" >
+                    <p:outputPanel id="dropArea">
+                        <h:outputText value="Arrastre un Pokemon" rendered="${empty pokemonC.pokemonSeleccionado}"
+                                      style="font-size:24px;"/>
+                        <p:dataTable id="pokemonSelecionadoTabla" var="pokemon" value="#{pokemonC.pokemonSeleccionado}"
+                                     rendered="#{not empty pokemonC.pokemonSeleccionado}">
+                            <p:column headerText="Nombre">
+                                <h:outputText value="${pokemon.NOMPOK}"/>
+                            </p:column>
+                            <p:column headerText="Apodo">
+                                <h:outputText value="${pokemon.APEPOK}"/>
+                            </p:column>
+                            <p:column headerText="Experiencia Base">
+                                <h:outputText value="${pokemon.EXPHABPOK} exp"/>
+                            </p:column>
+                            <p:column headerText="Altura">
+                                <h:outputText value="${pokemon.ALTPOK} m"/>
+                            </p:column>
+                            <p:column headerText="Peso">
+                                <h:outputText value="${pokemon.PESPOK} kg"/>
+                            </p:column>
+                            <p:column headerText="Quitar" style="text-align: center">
+                                <p:commandButton icon="pi pi-times" update="pokemonSelecionadoTabla"
+                                                 style="width: 60px" actionListener="${pokemonC.quitarPokemonLista()}" >
+                                    <f:setPropertyActionListener target="${pokemonC.pokemon}" value="${pokemon}" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </p:outputPanel>
+                </p:fieldset>
+                
+                <p:droppable for="pokemonSelecionado" tolerance="touch" activeStyleClass="ui-state-highlight"
+                             datasource="pokemonesObtenido" onDrop="handleDrop">
+                    <p:ajax listener="#{pokemonC.onProductDrop}" update="dropArea pokemonesObtenido"/>
+                </p:droppable>
+            </h:form>
+        </div>
+    </h:body>
+</html>
+
